@@ -1,33 +1,146 @@
-{% extends "base.html" %} {% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Traffic Sign Recognition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1.5rem; }
+        .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: none; margin: 0 auto;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .image-preview { width: 100%; max-height: 280px; object-fit: contain; border-radius: 1rem; display: none; margin: 0 auto; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
+        .drag-area { border: 2px dashed #3b82f6; transition: all 0.3s ease; }
+        .drag-area:hover { background-color: rgba(59, 130, 246, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
 
-<h2>Traffic Sign Recognition Using Deep Learning</h2>
-<img src="https://i.postimg.cc/rFYVTRnN/yellow-traffic-sign-set-isolated-white-background-97458-258.jpg" 
-alt="" style="width: 30%; height:30%">
-
-<div>
-    <form id="upload-file" method="post" enctype="multipart/form-data">
-        <label for="imageUpload" class="upload-label">
-            Choose...
-        </label>
-        <input type="file" name="file" id="imageUpload" accept=".png, .jpg, .jpeg">
-    </form>
-
-    <div class="image-section" style="display:none;">
-        <div class="img-preview">
-            <div id="imagePreview">
-            </div>
+    <div class="glass-panel p-8 w-full max-w-lg shadow-2xl">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">Traffic Sign AI</h1>
+            <p class="text-slate-400">Upload a picture of a traffic sign for instant recognition.</p>
         </div>
-        <div>
-            <button type="button" class="btn btn-primary btn-lg " id="btn-predict">Predict!</button>
+
+        <form id="upload-form" enctype="multipart/form-data">
+            <div class="drag-area cursor-pointer rounded-2xl p-6 text-center mb-6 relative" id="drag-box" onclick="document.getElementById('file-upload').click()">
+                <input type="file" id="file-upload" name="file" class="hidden" accept="image/*" onchange="previewImage(event)">
+                
+                <div id="upload-placeholder">
+                    <svg class="mx-auto h-12 w-12 text-blue-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    </svg>
+                    <p class="font-semibold text-blue-300">Click or Drag Image Here</p>
+                    <p class="text-xs text-slate-500 mt-1">PNG, JPG, JPEG up to 10MB</p>
+                </div>
+                
+                <img id="img-preview" class="image-preview" />
+            </div>
+
+            <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 flex items-center justify-center">
+                <span>Analyze Sign</span>
+                <div class="loader ml-3" id="loading-spinner"></div>
+            </button>
+        </form>
+
+        <div id="result-box" class="mt-8 hidden opacity-0 transition-opacity duration-500 text-center">
+            <p class="text-slate-400 text-sm mb-1 uppercase tracking-widest font-semibold">Prediction Result</p>
+            <h2 id="result-text" class="text-2xl font-bold text-emerald-400">Yield</h2>
         </div>
     </div>
 
-    <div class="loader" style="display:none;"></div>
+    <script>
+        const form = document.getElementById('upload-form');
+        const fileInput = document.getElementById('file-upload');
+        const imgPreview = document.getElementById('img-preview');
+        const placeholder = document.getElementById('upload-placeholder');
+        const resultBox = document.getElementById('result-box');
+        const resultText = document.getElementById('result-text');
+        const spinner = document.getElementById('loading-spinner');
+        const submitBtn = document.getElementById('submit-btn');
+        const submitText = submitBtn.querySelector('span');
 
-    <h3 id="result">
-        <span> </span>
-    </h3>
+        function previewImage(event) {
+            const file = event.target.files[0];
+            handleFile(file);
+        }
 
-</div>
+        function handleFile(file) {
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imgPreview.src = e.target.result;
+                    imgPreview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                    resultBox.classList.add('hidden');
+                    resultBox.style.opacity = '0';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
 
-{% endblock %}
+        const dragBox = document.getElementById('drag-box');
+        dragBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dragBox.classList.add('bg-slate-800');
+        });
+        dragBox.addEventListener('dragleave', () => {
+            dragBox.classList.remove('bg-slate-800');
+        });
+        dragBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragBox.classList.remove('bg-slate-800');
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!fileInput.files.length) {
+                alert('Please select an image first!');
+                return;
+            }
+
+            const formData = new FormData(form);
+            
+            // UI Loading state
+            submitText.textContent = 'Processing...';
+            spinner.style.display = 'block';
+            submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+            resultBox.classList.add('hidden');
+            resultBox.style.opacity = '0';
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const result = await response.text();
+                    resultText.textContent = result;
+                    resultBox.classList.remove('hidden');
+                    setTimeout(() => resultBox.style.opacity = '1', 50);
+                } else {
+                    resultText.textContent = 'Error processing image.';
+                    resultText.classList.replace('text-emerald-400', 'text-red-400');
+                    resultBox.classList.remove('hidden');
+                    setTimeout(() => resultBox.style.opacity = '1', 50);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Check the console.');
+            } finally {
+                // Restore UI state
+                submitText.textContent = 'Analyze Sign';
+                spinner.style.display = 'none';
+                submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+            }
+        });
+    </script>
+</body>
+</html>
