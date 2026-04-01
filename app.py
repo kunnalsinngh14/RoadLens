@@ -83,11 +83,11 @@ def model_predict(img_path, model):
     img = np.asarray(img)
     img = cv2.resize(img, (32, 32))
     img = preprocessing(img)
-    cv2.imshow("Processed Image", img)
+    # cv2.imshow("Processed Image", img)
     img = img.reshape(1, 32, 32, 1)
     # PREDICT IMAGE
-    predictions = model.predict(img)
-    classIndex = model.predict_classes(img)
+    predictions = model.predict(img, verbose=0)
+    classIndex = np.argmax(predictions, axis=1)[0]
     # probabilityValue =np.amax(predictions)
     preds = getClassName(classIndex)
     return preds

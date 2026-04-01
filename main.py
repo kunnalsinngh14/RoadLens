@@ -3,15 +3,15 @@ import matplotlib.pyplot as plt
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
-from keras.utils.np_utils import to_categorical
+from tensorflow.keras.utils import to_categorical
 from keras.layers import Dropout, Flatten
-from keras.layers.convolutional import Conv2D, MaxPooling2D
+from keras.layers import Conv2D, MaxPooling2D
 import cv2
 from sklearn.model_selection import train_test_split
 import pickle
 import os
 import pandas as pd
-from keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
  
 path = "Dataset" 
 labelFile = 'labels.csv' 
@@ -109,12 +109,12 @@ def myModel():
     model.add(Dense(500,activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(noOfClasses,activation='softmax')) 
-    model.compile(Adam(lr=0.001),loss='categorical_crossentropy',metrics=['accuracy'])
+    model.compile(Adam(learning_rate=0.001),loss='categorical_crossentropy',metrics=['accuracy'])
     return model
  
 model = myModel()
 print(model.summary())
-history=model.fit_generator(dataGen.flow(X_train,y_train,batch_size=32),steps_per_epoch=len(X_train)//32,epochs=epochs_val,validation_data=(X_validation,y_validation),shuffle=1)
+history=model.fit(dataGen.flow(X_train,y_train,batch_size=32),steps_per_epoch=len(X_train)//32,epochs=epochs_val,validation_data=(X_validation,y_validation),shuffle=1)
  
 plt.figure(1)
 plt.plot(history.history['loss'])
