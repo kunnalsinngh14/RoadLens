@@ -48,17 +48,17 @@ RoadLens/
 ├── model.h5             # The saved trained model
 ├── labels.csv           # Reference for class names
 └── README.md
+---
 🚀 Getting Started
 1. Prerequisites
 Ensure you have Python 3.8+ installed. Install the required dependencies:
 
 Bash
 pip install tensorflow opencv-python flask werkzeug numpy pandas matplotlib scikit-learn
+
 2. Training the Model
 If you wish to retrain the model with your own dataset:
-
 Place your images in the Dataset/ folder.
-
 Run the training script:
 
 Bash
@@ -67,23 +67,19 @@ This will generate model.h5 upon completion.
 
 3. Running the Web App
 Start the Flask server:
-
+---
 Bash
 python main.py
 Open your browser and navigate to http://127.0.0.1:5001.
-
 Upload a traffic sign image to see the prediction!
-
+---
 📊 Model Performance
 Input Size: 32x32x1 (Grayscale)
-
 Optimizer: Adam (Learning Rate: 0.001)
-
 Loss Function: Categorical Crossentropy
-
 Validation: 20% of the dataset used for validation to ensure stability.
-
+---
 🤝 Contributing
 Contributions, issues, and feature requests are welcome! Feel free to check the issues page if you want to contribute to the computer vision pipeline or the UI.
-
+---
 Developed by Kunal Singh — B.Tech Computer Science (AI/ML) @ RV University.
