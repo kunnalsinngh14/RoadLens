@@ -38,16 +38,16 @@ The `main.py` script serves as the bridge between the trained `model.h5` and the
 
 ## 📂 Project Structure
 ```
-* **RoadLens/**
-    * **Dataset/** — Training images categorized by folder (0-42)
-    * **uploads/** — Temporary storage for user-uploaded images
-    * **templates/**
-        * `index.html` — Web UI for the prediction service
-    * `train_model.py` — CNN training and validation script
-    * `main.py` — Flask Application logic
-    * `model.h5` — The saved trained model
-    * `labels.csv` — Reference for class names
-    * `README.md`
+RoadLens/
+    Dataset/ — Training images categorized by folder (0-42)
+    uploads — Temporary storage for user-uploaded images
+    templates/
+         `index.html` — Web UI for the prediction service
+   `train_model.py` — CNN training and validation script
+   `main.py` — Flask Application logic
+   `model.h5` — The saved trained model
+   `labels.csv` — Reference for class names
+   `README.md`
 ```
 ---
 
